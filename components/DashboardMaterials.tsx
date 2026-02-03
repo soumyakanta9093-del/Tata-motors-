@@ -9,7 +9,7 @@ import {
   CheckCircle, ArrowUpRight, DollarSign, Clock,
   ChevronRight, X, Siren, FileText, Globe, Zap, Plane, Train,
   Loader2, ExternalLink, Package, UserCheck, MapPin, Navigation,
-  ShieldAlert, FastForward, Activity, Info, CheckCircle2
+  ShieldAlert, FastForward, Activity, Info, CheckCircle2, ShoppingCart, Database
 } from 'lucide-react';
 
 const DashboardMaterials: React.FC = () => {
@@ -24,7 +24,10 @@ const DashboardMaterials: React.FC = () => {
   const [showLogisticsModal, setShowLogisticsModal] = useState(false);
   const [surgeModel, setSurgeModel] = useState('Nexon');
   const [surgeMagnitude, setSurgeMagnitude] = useState(30);
-  const [selectedVendors, setSelectedVendors] = useState<Record<string, number>>({});
+  
+  // Sync states for Demand Surge
+  const [surgeSyncing, setSurgeSyncing] = useState(false);
+  const [surgeSyncProgress, setSurgeSyncProgress] = useState(0);
 
   const stats = useMemo(() => {
     const lines = ['Curvv', 'Nexon', 'Altroz', 'Safari'];
@@ -62,13 +65,30 @@ const DashboardMaterials: React.FC = () => {
 
   const runSurgeSimulation = async () => {
     setSurgeLoading(true);
+    setSurgeSyncing(true);
+    setSurgeSyncProgress(0);
+    setShowSurgeModal(true);
+
+    // Simulate system sync
+    const syncInterval = setInterval(() => {
+      setSurgeSyncProgress(prev => {
+        const next = prev + Math.random() * 20;
+        if (next >= 100) {
+          clearInterval(syncInterval);
+          return 100;
+        }
+        return next;
+      });
+    }, 250);
+
     try {
       const result = await getDemandSurgeAnalysis(surgeModel, surgeMagnitude, CSV_DATA);
+      // Wait for at least 2 seconds for aesthetic sync bar
+      await new Promise(resolve => setTimeout(resolve, 2000));
       setSurgeResult(result);
-      setSelectedVendors({});
-      setShowSurgeModal(true);
     } finally {
       setSurgeLoading(false);
+      setSurgeSyncing(false);
     }
   };
 
@@ -185,40 +205,124 @@ const DashboardMaterials: React.FC = () => {
       </div>
 
       {/* Demand Surge Modal */}
-      {showSurgeModal && surgeResult && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-4xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-             <div className="bg-amber-600 p-8 text-white flex justify-between items-start">
+      {showSurgeModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-5xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
+             <div className="bg-amber-600 p-8 text-white flex justify-between items-center shrink-0">
                 <div>
-                   <h3 className="text-2xl font-black uppercase tracking-tight flex items-center gap-3"><TrendingUp size={28} /> Demand Surge Analysis</h3>
-                   <p className="text-amber-100 text-sm font-medium mt-1">Impact simulation for +{surgeMagnitude}% volume in {surgeModel} production</p>
+                   <h3 className="text-2xl font-black uppercase tracking-tight flex items-center gap-3"><TrendingUp size={28} /> Demand Surge Analysis: {surgeModel}</h3>
+                   <p className="text-amber-100 text-sm font-medium mt-1">Aggregating market demand and inventory data...</p>
                 </div>
                 <button onClick={() => setShowSurgeModal(false)} className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition-colors"><X size={24} /></button>
              </div>
-             <div className="p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="space-y-6">
-                   <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Projected Supply Deficits</h4>
-                   <div className="space-y-3 max-h-[400px] overflow-y-auto pr-4 custom-scrollbar">
-                      {surgeResult.impactedComponents?.map((comp: any) => (
-                        <div key={comp.code} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-between">
-                           <div><p className="text-xs font-black text-slate-900">{comp.name}</p><p className="text-[10px] text-rose-600 font-bold uppercase">Deficit: {comp.deficit}</p></div>
-                           <div className="text-right"><p className="text-xs font-bold text-slate-500">Stockout</p><p className="text-[10px] font-black uppercase text-slate-900">{comp.daysToStockout} Days</p></div>
-                        </div>
-                      ))}
+             
+             <div className="flex-1 overflow-y-auto bg-slate-50/50">
+               {surgeSyncing ? (
+                 <div className="flex flex-col items-center justify-center p-20 text-center space-y-8 h-full">
+                   <div className="relative">
+                     <div className="w-24 h-24 rounded-full border-4 border-slate-200 border-t-amber-500 animate-spin" />
+                     <Database className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-amber-500" size={32} />
                    </div>
-                </div>
-                <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-100 flex flex-col h-full">
-                   <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-6 border-b border-slate-200 pb-4">AI Sourcing Allocation</h4>
-                   <div className="flex-1 space-y-4">
-                      {surgeResult.mitigationStrategies?.map((s: any, idx: number) => (
-                         <div key={idx} className="flex gap-4 p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
-                            <div className="p-3 bg-blue-50 text-blue-600 rounded-xl h-fit"><Warehouse size={20} /></div>
-                            <div><p className="text-xs font-black text-slate-900 uppercase tracking-tight">{s.vendorName}</p><p className="text-[10px] text-slate-400 font-medium leading-relaxed mt-1">{s.action}</p></div>
-                         </div>
-                      ))}
+                   <div className="space-y-2">
+                     <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">Synchronizing Systems</h4>
+                     <p className="text-slate-500 text-sm font-medium">Connecting to CRM, Orders, Inventory and POs...</p>
                    </div>
-                   <button className="w-full mt-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-slate-900/20 active:scale-95 transition-all">Execute Sourcing Mix</button>
-                </div>
+                   <div className="w-64 h-2 bg-slate-200 rounded-full overflow-hidden border border-slate-100">
+                     <div className="h-full bg-amber-500 transition-all duration-300" style={{ width: `${surgeSyncProgress}%` }} />
+                   </div>
+                   <div className="flex gap-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                      <span className={surgeSyncProgress > 25 ? 'text-emerald-500' : ''}>CRM LINKED</span>
+                      <span className={surgeSyncProgress > 50 ? 'text-emerald-500' : ''}>ORDERS POOLED</span>
+                      <span className={surgeSyncProgress > 75 ? 'text-emerald-500' : ''}>PO VALIDATED</span>
+                   </div>
+                 </div>
+               ) : surgeResult ? (
+                 <div className="p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
+                    {/* Left: Risk Components */}
+                    <div className="lg:col-span-5 space-y-6">
+                       <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                          <AlertTriangle size={14} className="text-rose-600" /> ERP Risk Detection
+                       </h4>
+                       <div className="space-y-3">
+                          {surgeResult.riskComponents?.map((comp: any) => (
+                            <div key={comp.code} className="p-4 bg-white border border-slate-200 rounded-2xl flex items-center justify-between shadow-sm">
+                               <div>
+                                  <p className="text-xs font-black text-slate-900">{comp.name}</p>
+                                  <p className="text-[10px] text-slate-400 font-bold uppercase">{comp.code}</p>
+                               </div>
+                               <div className="text-right">
+                                  <p className="text-[10px] text-rose-600 font-black uppercase">Deficit: {comp.deficit}</p>
+                                  <span className="px-2 py-0.5 bg-rose-50 text-rose-600 rounded text-[8px] font-black uppercase border border-rose-100">Shortage</span>
+                               </div>
+                            </div>
+                          ))}
+                          {(!surgeResult.riskComponents || surgeResult.riskComponents.length === 0) && (
+                            <div className="p-8 text-center bg-emerald-50 rounded-2xl border border-dashed border-emerald-200">
+                               <CheckCircle2 size={32} className="text-emerald-500 mx-auto mb-2" />
+                               <p className="text-xs font-bold text-emerald-700">No immediate component risks detected.</p>
+                            </div>
+                          )}
+                       </div>
+                    </div>
+
+                    {/* Right: Procurement Options */}
+                    <div className="lg:col-span-7 space-y-6">
+                       <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-4 flex items-center gap-2">
+                          <ShoppingCart size={14} className="text-blue-600" /> ERP Automated Procurement
+                       </h4>
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {surgeResult.procurementOptions?.map((opt: any, idx: number) => (
+                            <div key={idx} className={`p-5 rounded-3xl border transition-all flex flex-col relative overflow-hidden group ${
+                              opt.isBestOption || idx === 0 
+                                ? 'bg-emerald-50 border-emerald-500 shadow-lg shadow-emerald-900/10' 
+                                : 'bg-orange-50 border-orange-200 shadow-sm'
+                            }`}>
+                               { (opt.isBestOption || idx === 0) && (
+                                 <div className="absolute top-0 right-0 p-3 bg-emerald-500 text-white rounded-bl-2xl">
+                                    <Sparkles size={14} />
+                                 </div>
+                               )}
+                               <p className={`text-xs font-black uppercase tracking-tight ${opt.isBestOption || idx === 0 ? 'text-emerald-900' : 'text-orange-900'}`}>
+                                 {opt.vendorName}
+                               </p>
+                               
+                               <div className="mt-4 space-y-2">
+                                  <div className="flex items-center gap-2">
+                                     <Clock size={12} className={opt.isBestOption || idx === 0 ? 'text-emerald-600' : 'text-orange-600'} />
+                                     <span className="text-[10px] font-bold text-slate-600">Lead Time: {opt.leadTimeDays} Days</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                     <MapPin size={12} className={opt.isBestOption || idx === 0 ? 'text-emerald-600' : 'text-orange-600'} />
+                                     <span className="text-[10px] font-bold text-slate-600">Origin: {opt.location}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                     <DollarSign size={12} className={opt.isBestOption || idx === 0 ? 'text-emerald-600' : 'text-orange-600'} />
+                                     <span className="text-[10px] font-bold text-slate-600">Freight: ₹{opt.freightCostINR.toLocaleString()}</span>
+                                  </div>
+                               </div>
+
+                               <button className={`mt-6 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all ${
+                                 opt.isBestOption || idx === 0 
+                                   ? 'bg-emerald-600 text-white hover:bg-emerald-700' 
+                                   : 'bg-orange-600 text-white hover:bg-orange-700'
+                               }`}>
+                                 {opt.isBestOption || idx === 0 ? 'Selected Route' : 'Select Alternate'}
+                               </button>
+                            </div>
+                          ))}
+                       </div>
+                    </div>
+                 </div>
+               ) : null}
+             </div>
+
+             <div className="p-8 bg-white border-t border-slate-100 flex gap-4 shrink-0">
+                <button onClick={() => setShowSurgeModal(false)} className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-black transition-all">
+                  Close Analysis Hub
+                </button>
+                <button className="flex-[2] py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition-all flex items-center justify-center gap-2">
+                  <Zap size={14} /> Execute ERP Procurement Sync
+                </button>
              </div>
           </div>
         </div>
