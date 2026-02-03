@@ -40,7 +40,7 @@ export const getDemandSurgeAnalysis = async (model: string, magnitude: number, d
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `Simulate a ${magnitude}% demand surge for ${model}. Identify components at high risk of stockout and provide procurement options.`,
+      contents: `Simulate a ${magnitude}% demand surge for ${model}. Identify components at high risk of stockout and provide 3 procurement options.`,
       config: { 
         responseMimeType: "application/json",
         responseSchema: {

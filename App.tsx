@@ -4,7 +4,7 @@ import { DashboardTab, PlantConfig, Worker, ProductionLine } from './types';
 import { getMasterLaborPool } from './constants';
 import Sidebar from './components/Sidebar';
 import DashboardManagement from './components/DashboardManagement';
-import DashboardMaterials from './components/DashboardMaterials';
+import DashboardMaterial from './components/DashboardMaterial';
 import PlanningCenter from './components/PlanningCenter';
 import LaborDashboard from './components/LaborDashboard';
 import DashboardMachine from './components/DashboardMachine';
@@ -33,7 +33,7 @@ const TabContent = memo(({
 }) => {
   switch (activeTab) {
     case DashboardTab.MANAGEMENT: return <DashboardManagement />;
-    case DashboardTab.MATERIALS: return <DashboardMaterials />;
+    case DashboardTab.MATERIAL: return <DashboardMaterial />;
     case DashboardTab.PLANNING: return <PlanningCenter />;
     case DashboardTab.LABOR: return (
       <LaborDashboard 

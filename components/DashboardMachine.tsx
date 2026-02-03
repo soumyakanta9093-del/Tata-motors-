@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useCallback, memo, useEffect } from 'react';
 import { 
   Cpu, Activity, AlertTriangle, CheckCircle, CheckCircle2, Clock, 
@@ -373,7 +372,7 @@ const DashboardMachine: React.FC = () => {
           </div>
           <div className="flex items-center space-x-2 bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-inner">
              <button onClick={() => setSubTab('command')} className={`px-5 py-2 rounded-lg font-black text-[10px] transition-all uppercase tracking-widest flex items-center gap-2 ${subTab === 'command' ? 'bg-white shadow text-blue-600' : 'text-slate-500 hover:text-slate-800'}`}><Activity size={12} /> Command Center</button>
-             <button onClick={() => setSubTab('service')} className={`px-5 py-2 rounded-lg font-black text-[10px] transition-all uppercase tracking-widest flex items-center gap-2 ${subTab === 'service' ? 'bg-white shadow text-blue-600' : 'text-slate-500 hover:text-slate-800'}`}><ShieldAlert size={12} /> Service Intel</button>
+             <button onClick={() => setSubTab('service')} className={`px-5 py-2 rounded-lg font-black text-[10px] transition-all uppercase tracking-widest flex items-center gap-2 ${subTab === 'service' ? 'bg-white shadow text-blue-600' : 'text-slate-500 hover:text-slate-800'}`}><ShieldAlert size={12} /> Service Intelligence</button>
           </div>
         </div>
         <div className="px-6 py-2.5 bg-slate-50/50 flex flex-wrap gap-8 items-center border-t border-slate-50">
