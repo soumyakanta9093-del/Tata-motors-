@@ -120,7 +120,7 @@ export enum DashboardTab {
   OPERATIONS = 'operations',
   EXECUTION = 'execution',
   PLANNING = 'planning',
-  MATERIAL = 'material',
+  MATERIALS = 'materials',
   LABOR = 'labor',
   MACHINE = 'machine',
   ADMIN = 'admin',

@@ -69,7 +69,7 @@ const DashboardMaterials: React.FC = () => {
     setSurgeSyncProgress(0);
     setShowSurgeModal(true);
 
-    // Simulate system sync
+    // Simulate system sync for high-production feel
     const syncInterval = setInterval(() => {
       setSurgeSyncProgress(prev => {
         const next = prev + Math.random() * 20;
@@ -107,7 +107,7 @@ const DashboardMaterials: React.FC = () => {
     <div className="space-y-6 animate-in fade-in duration-300 pb-20">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">Material Control Tower</h2>
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">Materials Control Tower</h2>
           <div className={`mt-1 flex items-center space-x-2 text-[10px] font-black uppercase ${stats.isAnyLineCritical ? 'text-rose-600' : 'text-emerald-600'}`}>
             <ShieldCheck size={14} />
             <span className="tracking-widest">{stats.isAnyLineCritical ? 'Supply Breach Detected' : 'Supply Health Normal'}</span>
@@ -340,26 +340,4 @@ const DashboardMaterials: React.FC = () => {
                 <button onClick={() => setShowLogisticsModal(false)} className="text-slate-400 hover:text-rose-500"><X size={24} /></button>
              </div>
              <div className="p-8 space-y-6">
-                <div className="grid grid-cols-3 gap-4">
-                   <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-center"><p className="text-[10px] font-black text-slate-400 uppercase">Impacted units</p><p className="text-xl font-black text-slate-900 mt-1">450</p></div>
-                   <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-center"><p className="text-[10px] font-black text-slate-400 uppercase">Time to stockout</p><p className="text-xl font-black text-rose-600 mt-1">12h</p></div>
-                   <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-center"><p className="text-[10px] font-black text-slate-400 uppercase">Recovery Slot</p><p className="text-xl font-black text-slate-900 mt-1">Shift B</p></div>
-                </div>
-                <div className="bg-slate-900 rounded-3xl p-6 text-white relative overflow-hidden">
-                   <div className="absolute top-0 right-0 p-4 opacity-10"><Plane size={60} /></div>
-                   <h4 className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-4">AI Mitigation Route</h4>
-                   <p className="text-xs text-slate-300 leading-relaxed font-medium">{logisticsResult.mitigation}</p>
-                   <div className="mt-6 flex gap-4">
-                      <button className="flex-1 py-3 bg-blue-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-colors">Confirm Air Freight</button>
-                      <button className="flex-1 py-3 bg-white/10 border border-white/10 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white/20 transition-colors">Check Local Buffer</button>
-                   </div>
-                </div>
-             </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default memo(DashboardMaterials);
+                <div className="
