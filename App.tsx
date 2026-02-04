@@ -1,7 +1,8 @@
 
 import React, { useState, useMemo, useCallback, useEffect, memo } from 'react';
-import { DashboardTab, PlantConfig, Worker, ProductionLine } from './types';
+import { DashboardTab, PlantConfig, Worker, ProductionLine, Language } from './types';
 import { getMasterLaborPool } from './constants';
+import { useI18n } from './services/i18nService';
 import Sidebar from './components/Sidebar';
 import DashboardManagement from './components/DashboardManagement';
 import DashboardMaterials from './components/DashboardMaterials';
@@ -10,7 +11,7 @@ import LaborDashboard from './components/LaborDashboard';
 import DashboardMachine from './components/DashboardMachine';
 import AdminDashboard from './components/AdminDashboard'; 
 import ReportsDashboard from './components/ReportsDashboard';
-import { Bell, User, Activity, Clock, RefreshCw } from 'lucide-react';
+import { Bell, User, Activity, Clock, RefreshCw, Languages } from 'lucide-react';
 
 const TabContent = memo(({ 
   activeTab, 
@@ -20,7 +21,8 @@ const TabContent = memo(({
   laborPool, 
   setLaborPool, 
   currentShift,
-  productionStats
+  productionStats,
+  lang
 }: {
   activeTab: DashboardTab;
   plantConfig: PlantConfig;
@@ -30,26 +32,31 @@ const TabContent = memo(({
   setLaborPool: React.Dispatch<React.SetStateAction<Worker[]>>;
   currentShift: 'A' | 'B' | 'C';
   productionStats: { planned: number; actual: number; percent: number };
+  lang: Language;
 }) => {
+  const t = useI18n(lang);
+
   switch (activeTab) {
-    case DashboardTab.MANAGEMENT: return <DashboardManagement />;
-    case DashboardTab.MATERIALS: return <DashboardMaterials />;
-    case DashboardTab.PLANNING: return <PlanningCenter />;
+    case DashboardTab.MANAGEMENT: return <DashboardManagement lang={lang} />;
+    case DashboardTab.MATERIALS: return <DashboardMaterials lang={lang} />;
+    case DashboardTab.PLANNING: return <PlanningCenter lang={lang} />;
     case DashboardTab.LABOR: return (
       <LaborDashboard 
         initialLines={activeLines} 
         currentShift={currentShift}
         config={plantConfig}
         productionStats={productionStats}
+        lang={lang}
       />
     );
-    case DashboardTab.MACHINE: return <DashboardMachine />;
+    case DashboardTab.MACHINE: return <DashboardMachine lang={lang} />;
     case DashboardTab.ADMIN: return (
       <AdminDashboard 
         config={plantConfig} 
         onUpdate={updateConfig} 
         laborPool={laborPool}
         setLaborPool={setLaborPool}
+        lang={lang}
       />
     );
     case DashboardTab.REPORTS: return (
@@ -57,13 +64,14 @@ const TabContent = memo(({
         laborPool={laborPool} 
         activeLines={activeLines} 
         productionStats={productionStats}
+        lang={lang}
       />
     );
     default:
       return (
         <div className="bg-white p-12 rounded-xl border border-slate-200 text-center">
           <Activity className="text-slate-300 mx-auto mb-4" size={48} />
-          <h2 className="text-xl font-bold text-slate-900">{activeTab.toUpperCase()} Module</h2>
+          <h2 className="text-xl font-bold text-slate-900">{t(activeTab.toUpperCase())} Module</h2>
           <p className="text-slate-500 text-sm mt-1">System is being optimized for this view.</p>
         </div>
       );
@@ -75,9 +83,12 @@ const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [autoShiftEnabled, setAutoShiftEnabled] = useState(true);
+  const [lang, setLang] = useState<Language>('EN');
   
   const [laborPool, setLaborPool] = useState<Worker[]>(() => getMasterLaborPool());
   const [currentShift, setCurrentShift] = useState<'A' | 'B' | 'C'>('A');
+
+  const t = useI18n(lang);
 
   const [plantConfig, setPlantConfig] = useState<PlantConfig>({
     companyName: 'TATA MOTORS',
@@ -112,7 +123,6 @@ const App: React.FC = () => {
     return () => clearInterval(timer);
   }, [autoShiftEnabled, currentShift]);
 
-  // Dynamic Shift Progress Calculation
   const shiftProgress = useMemo(() => {
     const hour = currentTime.getHours();
     const minutes = currentTime.getMinutes();
@@ -137,10 +147,9 @@ const App: React.FC = () => {
     return Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
   }, [currentTime, currentShift]);
 
-  // Real vehicle assembled numbers calculation
   const productionStats = useMemo(() => {
-    const planned = 240; // Target units per shift
-    const efficiency = 0.96; // 96% operational efficiency factor
+    const planned = 240; 
+    const efficiency = 0.96; 
     const actual = Math.floor(planned * (shiftProgress / 100) * efficiency);
     const percent = shiftProgress > 0 ? Math.round((actual / (planned * (shiftProgress / 100))) * 100) : 0;
     
@@ -179,7 +188,7 @@ const App: React.FC = () => {
             <h1 className="text-2xl font-bold tracking-tight uppercase">{plantConfig.companyName}</h1>
           </div>
           <div className="p-8 space-y-6">
-            <button onClick={() => setIsLoggedIn(true)} className="w-full py-4 bg-blue-600 text-white rounded-lg font-bold shadow-lg transition-all active:scale-[0.98]">Sign In</button>
+            <button onClick={() => setIsLoggedIn(true)} className="w-full py-4 bg-blue-600 text-white rounded-lg font-bold shadow-lg transition-all active:scale-[0.98]">{t('sign_in')}</button>
           </div>
         </div>
       </div>
@@ -193,6 +202,7 @@ const App: React.FC = () => {
         setActiveTab={setActiveTab} 
         config={plantConfig} 
         shiftProgress={shiftProgress}
+        lang={lang}
       />
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0 relative z-10">
@@ -210,6 +220,20 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center space-x-6">
+            <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+              <button 
+                onClick={() => setLang('EN')} 
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-1 ${lang === 'EN' ? 'bg-white shadow text-blue-600' : 'text-slate-500 hover:bg-slate-200'}`}
+              >
+                EN
+              </button>
+              <button 
+                onClick={() => setLang('DE')} 
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-1 ${lang === 'DE' ? 'bg-white shadow text-blue-600' : 'text-slate-500 hover:bg-slate-200'}`}
+              >
+                DE
+              </button>
+            </div>
             <Bell size={20} className="text-slate-400" />
             <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200"><User size={20} /></div>
           </div>
@@ -225,6 +249,7 @@ const App: React.FC = () => {
               setLaborPool={setLaborPool}
               currentShift={currentShift} 
               productionStats={productionStats}
+              lang={lang}
             />
           </div>
         </div>

@@ -60,6 +60,43 @@ export const MOCK_ALERTS: ProductionAlert[] = [
   { id: 'A1', type: 'downtime', severity: 'high', message: 'Weld Robot A2 critical motor failure.', timestamp: '10 mins ago' },
 ];
 
-export const getMasterPool = (): Worker[] => [];
+export const getMasterPool = (): Worker[] => {
+  const lineNames = ["L1", "L2", "L3", "L4", "L5", "L6"];
+  const shifts: ('A' | 'B' | 'C')[] = ['A', 'B', 'C'];
+  const pool: Worker[] = [];
+  
+  const realNames = [
+    "Rajesh Kumar", "Amit Sharma", "Suresh Patel", "Vijay Singh", "Rahul Gupta", "Manoj Tiwari",
+    "Sanjay Yadav", "Anil Mehta", "Sunil Deshmukh", "Deepak Kulkarni", "Rakesh Verma", "Mahesh Joshi",
+    "Vinod Reddy", "Santosh Nair", "Arvind Chauhan", "Dinesh Mishra", "Pankaj Rawat", "Ajay Thapar",
+    "Vikram Malhotra", "Jitendra Saxena", "Prashant Rao", "Sandeep Pathak", "Nitin Ghadge", "Ashish Ranade",
+    "Abhijit Bhave", "Yogesh Shinde", "Swapnil Pawar", "Sagar More", "Amol Gaikwad", "Kiran Thorat",
+    "Sameer Salunkhe", "Rahul Waghmare", "Vishal Sawant", "Rohan Parab", "Akshay Kamble", "Sumit Jadhav"
+  ];
+
+  shifts.forEach(shift => {
+    let nameIndex = 0;
+    lineNames.forEach((lineId, lineIdx) => {
+      // Create a unique set of 6 workers per line per shift
+      for (let i = 1; i <= 6; i++) {
+        const isBuffer = i > 4;
+        pool.push({
+          id: `TM-${shift}-${lineId}-${isBuffer ? 'BUF' : 'MN'}-${i}`,
+          name: `${realNames[nameIndex % realNames.length]} (${shift})`,
+          skills: ['Assembly'],
+          status: 'Present',
+          type: isBuffer ? 'Buffer' : 'Main',
+          assignedLine: lineId,
+          shift: shift
+        });
+        nameIndex++;
+      }
+    });
+  });
+  
+  return pool;
+};
+
 export const getMasterLaborPool = getMasterPool;
+
 export const MOCK_LINES: ProductionLine[] = [];

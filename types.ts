@@ -1,4 +1,6 @@
 
+export type Language = 'EN' | 'DE';
+
 export interface ComponentDetail {
   ComponentCode: string;
   ComponentName: string;

@@ -1,6 +1,7 @@
 
 import React, { memo } from 'react';
-import { DashboardTab, PlantConfig } from '../types';
+import { DashboardTab, PlantConfig, Language } from '../types';
+import { useI18n } from '../services/i18nService';
 import { LayoutDashboard, Package, Users, Activity, Sliders, Briefcase, Cpu, Settings, FileBarChart } from 'lucide-react';
 
 interface SidebarProps {
@@ -8,19 +9,22 @@ interface SidebarProps {
   setActiveTab: (tab: DashboardTab) => void;
   config?: PlantConfig;
   shiftProgress?: number;
+  lang: Language;
 }
 
-const Sidebar: React.FC<SidebarProps> = memo(({ activeTab, setActiveTab, config, shiftProgress = 0 }) => {
+const Sidebar: React.FC<SidebarProps> = memo(({ activeTab, setActiveTab, config, shiftProgress = 0, lang }) => {
+  const t = useI18n(lang);
+  
   const menuItems = [
-    { id: DashboardTab.MANAGEMENT, label: 'Management', icon: LayoutDashboard },
-    { id: DashboardTab.OPERATIONS, label: 'Operations', icon: Activity },
-    { id: DashboardTab.EXECUTION, label: 'Execution', icon: Briefcase },
-    { id: DashboardTab.PLANNING, label: 'Planning & Replan', icon: Sliders },
-    { id: DashboardTab.MATERIALS, label: 'Materials', icon: Package },
-    { id: DashboardTab.LABOR, label: 'Labor & Skills', icon: Users },
-    { id: DashboardTab.MACHINE, label: 'Machine', icon: Cpu },
-    { id: DashboardTab.ADMIN, label: 'Admin Panel', icon: Settings },
-    { id: DashboardTab.REPORTS, label: 'Analytics Reports', icon: FileBarChart },
+    { id: DashboardTab.MANAGEMENT, label: t('management'), icon: LayoutDashboard },
+    { id: DashboardTab.OPERATIONS, label: t('operations'), icon: Activity },
+    { id: DashboardTab.EXECUTION, label: t('execution'), icon: Briefcase },
+    { id: DashboardTab.PLANNING, label: t('planning'), icon: Sliders },
+    { id: DashboardTab.MATERIALS, label: t('materials'), icon: Package },
+    { id: DashboardTab.LABOR, label: t('labor'), icon: Users },
+    { id: DashboardTab.MACHINE, label: t('machine'), icon: Cpu },
+    { id: DashboardTab.ADMIN, label: t('admin'), icon: Settings },
+    { id: DashboardTab.REPORTS, label: t('reports'), icon: FileBarChart },
   ];
 
   const companyName = config?.companyName || 'TATA MOTORS';
@@ -64,7 +68,7 @@ const Sidebar: React.FC<SidebarProps> = memo(({ activeTab, setActiveTab, config,
 
       <div className="p-6 border-t border-slate-800">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Shift Progress</span>
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{t('shift_progress')}</span>
           <span className="text-xs font-bold text-blue-400">{Math.round(shiftProgress)}%</span>
         </div>
         <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">

@@ -8,6 +8,8 @@ import {
   Target, Clock, Activity, DollarSign, Zap, TrendingUp, 
   TrendingDown, Globe, ChevronRight, Info, AlertCircle
 } from 'lucide-react';
+import { Language } from '../types';
+import { useI18n } from '../services/i18nService';
 
 // --- SUB-COMPONENTS ---
 
@@ -58,7 +60,8 @@ const KPICard = memo(({ title, value, subValue, icon: Icon, color, trend, sparkD
   );
 });
 
-const LiveTicker = memo(() => {
+const LiveTicker = memo(({ lang }: { lang: Language }) => {
+  const t = useI18n(lang);
   const [messages] = useState([
     "Line 1: Batch NEXON-EV-102 Initiated",
     "Line 4: Maintenance Cycle Completed",
@@ -77,7 +80,7 @@ const LiveTicker = memo(() => {
     <div className="flex items-center space-x-3 bg-slate-900 px-4 py-2 rounded-lg border border-slate-800 h-10 overflow-hidden">
       <div className="flex items-center space-x-2 shrink-0 border-r border-slate-700 pr-3">
         <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Live Feed</span>
+        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{t('live_feed')}</span>
       </div>
       <p className="text-xs font-medium text-slate-300 animate-in slide-in-from-bottom-2 duration-500 truncate" key={index}>
         {messages[index]}
@@ -86,7 +89,12 @@ const LiveTicker = memo(() => {
   );
 });
 
-const DashboardManagement: React.FC = () => {
+interface DashboardManagementProps {
+  lang: Language;
+}
+
+const DashboardManagement: React.FC<DashboardManagementProps> = ({ lang }) => {
+  const t = useI18n(lang);
   const [timeRange, setTimeRange] = useState<'D' | 'W' | 'M'>('D');
 
   const performanceData = useMemo(() => {
@@ -115,20 +123,17 @@ const DashboardManagement: React.FC = () => {
   ], []);
 
   const COLORS = useMemo(() => ['#4f46e5', '#2563eb', '#0ea5e9', '#6366f1'], []);
-
-  // Simulated sparkline data
   const sparkData = useMemo(() => Array.from({ length: 7 }).map(() => ({ val: Math.random() * 100 })), []);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      {/* Header Controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">Management Overview</h2>
-          <p className="text-slate-500 text-sm font-medium">Holistic production health & financial tracking</p>
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">{t('management_overview')}</h2>
+          <p className="text-slate-500 text-sm font-medium">{t('holistic_health')}</p>
         </div>
         <div className="flex items-center space-x-3">
-          <LiveTicker />
+          <LiveTicker lang={lang} />
           <div className="flex bg-slate-200 p-1 rounded-lg">
             {(['D', 'W', 'M'] as const).map(range => (
               <button 
@@ -145,30 +150,28 @@ const DashboardManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* KPI Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard title="OTIF Accuracy" value="94.2%" subValue="+2.1%" icon={Target} color="blue" trend="up" sparkData={sparkData} />
-        <KPICard title="Schedule Adh." value="92.8%" subValue="-1.4%" icon={Clock} color="indigo" trend="down" sparkData={sparkData} />
-        <KPICard title="Line Efficiency" value="88.5%" subValue="+0.5%" icon={Activity} color="sky" trend="up" sparkData={sparkData} />
-        <KPICard title="Daily Margin" value="₹4.2M" subValue="+12.0%" icon={DollarSign} color="amber" trend="up" sparkData={sparkData} />
+        <KPICard title={t('otif_accuracy')} value="94.2%" subValue="+2.1%" icon={Target} color="blue" trend="up" sparkData={sparkData} />
+        <KPICard title={t('schedule_adh')} value="92.8%" subValue="-1.4%" icon={Clock} color="indigo" trend="down" sparkData={sparkData} />
+        <KPICard title={t('line_efficiency')} value="88.5%" subValue="+0.5%" icon={Activity} color="sky" trend="up" sparkData={sparkData} />
+        <KPICard title={t('daily_margin')} value="₹4.2M" subValue="+12.0%" icon={DollarSign} color="amber" trend="up" sparkData={sparkData} />
       </div>
 
-      {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden group">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="font-bold text-slate-900 uppercase text-xs tracking-widest">Throughput Stability Index</h3>
-              <p className="text-[10px] text-slate-400 font-bold mt-1 uppercase">Output vs. Planned Target</p>
+              <h3 className="font-bold text-slate-900 uppercase text-xs tracking-widest">{t('throughput_stability')}</h3>
+              <p className="text-[10px] text-slate-400 font-bold mt-1 uppercase">{t('output_vs_target')}</p>
             </div>
             <div className="flex items-center space-x-4">
                <div className="flex items-center space-x-2">
                  <div className="w-2 h-2 rounded-full bg-blue-600" />
-                 <span className="text-[10px] font-bold text-slate-500 uppercase">Actual</span>
+                 <span className="text-[10px] font-bold text-slate-500 uppercase">{t('actual')}</span>
                </div>
                <div className="flex items-center space-x-2">
                  <div className="w-2 h-2 rounded-full bg-slate-200" />
-                 <span className="text-[10px] font-bold text-slate-500 uppercase">Target</span>
+                 <span className="text-[10px] font-bold text-slate-500 uppercase">{t('target')}</span>
                </div>
             </div>
           </div>
@@ -197,8 +200,8 @@ const DashboardManagement: React.FC = () => {
         </div>
 
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col">
-          <h3 className="font-bold text-slate-900 mb-2 uppercase text-xs tracking-widest">Product Margin Mix</h3>
-          <p className="text-[10px] text-slate-400 font-bold mb-6 uppercase">Revenue contribution by model</p>
+          <h3 className="font-bold text-slate-900 mb-2 uppercase text-xs tracking-widest">{t('product_margin_mix')}</h3>
+          <p className="text-[10px] text-slate-400 font-bold mb-6 uppercase">{t('revenue_contribution')}</p>
           
           <div className="h-[240px] w-full relative">
             <ResponsiveContainer width="100%" height="100%">
@@ -221,7 +224,7 @@ const DashboardManagement: React.FC = () => {
             </ResponsiveContainer>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
                <p className="text-2xl font-black text-slate-900">₹4.2M</p>
-               <p className="text-[8px] text-slate-400 font-bold uppercase">Total Day</p>
+               <p className="text-[8px] text-slate-400 font-bold uppercase">{t('total_day')}</p>
             </div>
           </div>
           
@@ -241,35 +244,6 @@ const DashboardManagement: React.FC = () => {
               </div>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* Dynamic Breach Notification */}
-      <div className="bg-indigo-600 p-8 rounded-2xl text-white flex flex-col lg:flex-row items-center justify-between shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-          <Globe size={160} />
-        </div>
-        <div className="mb-6 lg:mb-0 relative z-10 flex items-center space-x-6">
-          <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-md">
-            <Zap size={32} className="text-amber-300 animate-pulse" />
-          </div>
-          <div>
-            <h4 className="text-xl font-black flex items-center gap-2 tracking-tight">
-              Production Constraint Detected
-            </h4>
-            <p className="text-indigo-100 mt-1 max-w-lg text-sm font-medium">
-              Material shortage on Part BAT-2000 (BMS Controller) is impacting Curvv EV final assembly. Shutdown risk in 14 cycles.
-            </p>
-          </div>
-        </div>
-        <div className="flex space-x-4 relative z-10">
-          <button className="flex items-center space-x-2 px-6 py-3 bg-white text-indigo-600 rounded-xl font-black hover:bg-indigo-50 transition-all active:scale-95 text-xs uppercase tracking-wider">
-            <span>INITIATE MIP SOLVER</span>
-            <ChevronRight size={16} />
-          </button>
-          <button className="p-3 bg-indigo-500 rounded-xl hover:bg-indigo-400 transition-colors" aria-label="Details">
-            <Info size={20} />
-          </button>
         </div>
       </div>
     </div>
