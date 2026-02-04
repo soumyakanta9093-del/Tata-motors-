@@ -40,18 +40,12 @@ export const getDemandSurgeAnalysis = async (model: string, magnitude: number, d
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `Business Case: Simulate a ${magnitude}% demand surge for ${model} due to heavy year-end discounts in upcoming months. 
-      Task:
-      1. Identify all components at risk of stockout from the provided dataset.
-      2. For EACH at-risk component, provide 2-3 procurement options for a one-time surge supply.
-      
-      DATA: ${JSON.stringify(data.slice(0, 15))}`,
+      contents: `Simulate a ${magnitude}% demand surge for ${model}. Identify components at high risk of stockout and provide 3 procurement options.`,
       config: { 
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            surgeSummary: { type: Type.STRING },
             riskComponents: {
               type: Type.ARRAY,
               items: {
@@ -59,28 +53,26 @@ export const getDemandSurgeAnalysis = async (model: string, magnitude: number, d
                 properties: {
                   name: { type: Type.STRING },
                   code: { type: Type.STRING },
-                  riskLevel: { type: Type.STRING },
-                  deficit: { type: Type.NUMBER },
-                  vendors: {
-                    type: Type.ARRAY,
-                    items: {
-                      type: Type.OBJECT,
-                      properties: {
-                        vendorName: { type: Type.STRING },
-                        leadTimeDays: { type: Type.NUMBER },
-                        location: { type: Type.STRING },
-                        freightCostINR: { type: Type.NUMBER },
-                        isBestOption: { type: Type.BOOLEAN }
-                      },
-                      required: ["vendorName", "leadTimeDays", "location", "freightCostINR", "isBestOption"]
-                    }
-                  }
-                },
-                required: ["name", "code", "deficit", "vendors"]
+                  status: { type: Type.STRING },
+                  deficit: { type: Type.NUMBER }
+                }
+              }
+            },
+            procurementOptions: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  vendorName: { type: Type.STRING },
+                  leadTimeDays: { type: Type.NUMBER },
+                  location: { type: Type.STRING },
+                  freightCostINR: { type: Type.NUMBER },
+                  isBestOption: { type: Type.BOOLEAN }
+                }
               }
             }
           },
-          required: ["riskComponents"]
+          required: ["riskComponents", "procurementOptions"]
         }
       }
     });
