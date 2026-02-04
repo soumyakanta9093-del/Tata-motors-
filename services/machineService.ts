@@ -1,6 +1,6 @@
-
+ 
 import { GoogleGenAI, Type } from "@google/genai";
-
+ 
 export const getPredictiveMaintenanceAnalysis = async (machine: string, sensors: any) => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const response = await ai.models.generateContent({
@@ -10,7 +10,7 @@ export const getPredictiveMaintenanceAnalysis = async (machine: string, sensors:
   });
   return JSON.parse(response.text || '{}');
 };
-
+ 
 export const getDowntimeRecoveryAnalysis = async (machine: string, issue: string) => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const response = await ai.models.generateContent({
@@ -20,7 +20,7 @@ export const getDowntimeRecoveryAnalysis = async (machine: string, issue: string
   });
   return JSON.parse(response.text || '{}');
 };
-
+ 
 export const getServiceSourcingAnalysis = async (machine: string, type: string, details: string) => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const response = await ai.models.generateContent({
@@ -30,3 +30,5 @@ export const getServiceSourcingAnalysis = async (machine: string, type: string, 
   });
   return JSON.parse(response.text || '{}');
 };
+ 
+ 
