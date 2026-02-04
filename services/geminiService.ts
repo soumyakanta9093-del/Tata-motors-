@@ -34,18 +34,11 @@ export const getServiceSourcingAnalysis = async (
     );
 
     const context = `
-      TARGET_MACHINE: ${machine.name} (ID: ${machine.id})
+      MACHINE: ${machine.name} (ID: ${machine.id})
       WARRANTY: ${machine.isUnderWarranty ? 'ACTIVE' : 'EXPIRED'}
-      CURRENT_LOAD_TO_DISTRIBUTE: ${machine.currentLoadUnitsHr} Jobs/Hr
-      CAPACITY_LIMIT: ${machine.capacityUnitsHr} Jobs/Hr
+      CURRENT_LOAD: ${machine.currentLoadUnitsHr} Units/Hr
       LINE_ID: ${machine.lineId}
-      AVAILABLE_PARALLEL_FLEET: ${JSON.stringify(parallelCandidates.map(p => ({ 
-        id: p.id, 
-        name: p.name, 
-        max_capacity_jobs_hr: p.capacityUnitsHr, 
-        current_load_jobs_hr: p.currentLoadUnitsHr,
-        current_utilization: p.utilization
-      })))}
+      PARALLEL_FLEET: ${JSON.stringify(parallelCandidates.map(p => ({ id: p.id, name: p.name, cap: p.capacityUnitsHr, load: p.currentLoadUnitsHr })))}
     `;
 
     return await callWithRetry(async () => {
@@ -57,22 +50,17 @@ export const getServiceSourcingAnalysis = async (
         TYPE: ${serviceType}
 
         TASK:
-        1. Sourcing: Propose 3 detailed bids for repair.
-        2. Load Strategies: Generate FIVE (5) distinct options for re-routing the ${machine.currentLoadUnitsHr} Jobs/Hr:
-           - "High-Velocity Bypass": Maximize output (Jobs/Hr) at any cost, using all available parallel capacity.
-           - "Preservation Mode": Distribute load to maintain a safe 80% utilization across the fleet to prevent secondary failures.
-           - "Throughput Balanced": Aim for the exact line target throughput while minimizing the number of machines involved.
-           - "Efficiency Focused": Route Jobs/Hr to the newest machines first (assuming better power-to-job ratio).
-           - "Risk Mitigation": Split load equally across the widest possible set of assets.
-        
-        3. GRANULAR REQUIREMENTS:
-           - In 'reasoning' and 'description', explicitly mention the Machine NAMES and IDs being used.
-           - In 'steps', specify exactly how many "additionalLoadUnits" (Jobs/Hr) each machine gets.
-           - The goal is to keep the Production Rate (Total Line Jobs/Hr) as close to the target as possible.
-        
-        4. Vendor Choice: Recommend a specific vendor based on cost, timeline, and warranty protection.
+        1. Sourcing: Propose 3 detailed bids.
+        2. Load Strategies: Generate FIVE (5) distinct options for re-routing the ${machine.currentLoadUnitsHr} units/hr:
+           - "Aggressive Recovery": Minimize throughput loss, accept >95% utilization.
+           - "Balanced Health": Maintain 85-90% utilization to protect parallel machine lifespan.
+           - "Quality First": Reduce throughput to ensure zero defects on stressed assets.
+           - "Energy Optimized": Route load to the most energy-efficient active machines.
+           - "Service Clustering": Shift load to machines with the longest time remaining until their next service.
+        3. Reasoning: For each strategy, explain exactly WHY these parallel machines were chosen and the technical trade-offs.
+        4. Vendor Choice: Recommend a specific vendor and provide a 'vendorReasoning' field explaining the decision based on cost, timeline, and warranty protection.
 
-        Return JSON per the schema provided. Ensure all numerical outputs for throughput are calculated as Jobs/Hr.`,
+        Return JSON per the schema provided.`,
         config: {
           responseMimeType: "application/json",
           responseSchema: {
